@@ -2,6 +2,8 @@
 
 A novel multimodal topic modeling framework that leverages Vision-Language Models (VLMs) to discover coherent topics from documents containing both text and images.
 
+<img width="1220" height="964" alt="image" src="https://github.com/user-attachments/assets/c2626f97-ecd4-4290-8ed8-8bff50fe973a" />
+
 ## Abstract
 
 We introduce CEMTM, a context-enhanced multimodal topic model designed to infer coherent and interpretable topic structures from both short and long documents containing text and images. CEMTM builds on fine-tuned large vision language models (LVLMs) to obtain contextualized embeddings, and employs a distributional attention mechanism to weight token-level contributions to topic inference. A reconstruction objective aligns topic-based representations with the document embedding, encouraging semantic consistency across modalities. Unlike existing approaches, CEMTM can process multiple images per document without repeated encoding and maintains interpretability through explicit word-topic and document-topic distributions. Extensive experiments on six multimodal benchmarks show that CEMTM consistently outperforms unimodal and multimodal baselines, achieving a remarkable average LLM score of 2.61. Further analysis shows its effectiveness in downstream few-shot retrieval and its ability to capture visually grounded semantics in complex domains such as scientific articles.

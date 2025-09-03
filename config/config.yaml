@@ -1,0 +1,57 @@
+# config/config.yaml
+
+# === Model Configuration ===
+model:
+  d_model: 4096               # Dimension of token embeddings from VLM2Vec
+  n_topics: 50                # Number of topics
+  transformer_layers: 2       # Layers in the importance network transformer
+  transformer_heads: 8        # Attention heads in transformer
+  dropout: 0.1                # Dropout for encoder and importance net
+
+# === Loss Weights ===
+loss:
+  lambda_entropy: 0.01        # Entropy regularization weight
+  lambda_kl: 0.1              # KL divergence regularization weight
+
+# === Optimizer & Scheduler ===
+optimizer:
+  name: adamw
+  lr: 5e-5
+  weight_decay: 0.01
+
+scheduler:
+  name: linear
+  warmup_steps: 500
+
+# === Training Configuration ===
+training:
+  batch_size: 4
+  num_epochs: 20
+  eval_every: 100
+  save_every: 1
+  gradient_clip: 1.0
+  device: cuda
+
+# === Data Configuration ===
+data:
+  name: "mscoco14"              # Dataset name (one of: wikiweb2m, spiqa, tqa, fhm, mscoco14, t4sa, vist)
+  dataset_path: ./data/corpus/
+  max_text_length: 512
+  image_size: 224
+  vocab_size: 30000
+  embedding_path: ./data/embeddings/glove.6B.300d.txt  # For WE metric evaluation
+
+# === Pretrained Models ===
+vlm2vec:
+  model_name: "llava-next-7b"
+  pretrained_path: ./checkpoints/vlm2vec_llava_next.pth
+  freeze: false
+
+# === Output & Logging ===
+output:
+  save_dir: ./outputs/
+  log_dir: ./logs/
+  checkpoint_name: cemtm_model.pth
+  wandb_project: cemtm-project
+
+seed: 42

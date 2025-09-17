@@ -1,5 +1,11 @@
 # CEMTM: Contextual Embedding-based Topic Model
 
+<p align="center">
+  <br>
+  <a href="https://arxiv.org/abs/2509.11465"><img alt="Paper" src="https://img.shields.io/badge/📃-Paper-808080"></a>
+</p>
+
+
 A novel multimodal topic modeling framework that leverages Vision-Language Models (VLMs) to discover coherent topics from documents containing both text and images.
 
 <img width="1220" height="964" alt="image" src="https://github.com/user-attachments/assets/c2626f97-ecd4-4290-8ed8-8bff50fe973a" />

@@ -322,3 +322,15 @@ For questions or issues, please:
 
 This research was supported by the Natural Sciences and Engineering Research Council of Canada (NSERC).  
 Ce projet a été financé par le Conseil de recherches en sciences naturelles et en génie du Canada (CRSNG).
+
+## Citation
+```
+@inproceedings{
+  abaskohi2025cemtm,
+  title={{CEMTM}: Contextual Embedding-based Multimodal Topic Modeling},
+  author={Amirhossein Abaskohi and Raymond Li and Chuyuan Li and Shafiq Joty and Giuseppe Carenini},
+  booktitle={The 2025 Conference on Empirical Methods in Natural Language Processing},
+  year={2025},
+  url={https://openreview.net/forum?id=VRH4rYFe0v}
+}
+```

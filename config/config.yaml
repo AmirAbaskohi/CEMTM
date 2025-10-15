@@ -40,6 +40,7 @@ data:
   image_size: 224
   vocab_size: 30000
   embedding_path: ./data/embeddings/glove.6B.300d.txt  # For WE metric evaluation
+  lazy_loading: true            # If true, use lazy loading to avoid memory overflow with large datasets
 
 # === Pretrained Models ===
 vlm2vec:

@@ -12,9 +12,21 @@ def train_cemtm(config):
     # === Set random seed ===
     set_seed(config["seed"])
 
-    # === Load dataset ===
-    dataset = get_dataset(config["data"]["name"], config["data"]["dataset_path"])
-    dataloader = DataLoader(dataset, batch_size=config["training"]["batch_size"], shuffle=True)
+    # === Load dataset with optional lazy loading to avoid memory overflow ===
+    batch_size = config["training"]["batch_size"]
+    lazy_loading = config["data"].get("lazy_loading", True)  # Default to True for memory efficiency
+    
+    dataset = get_dataset(
+        config["data"]["name"], 
+        config["data"]["dataset_path"],
+        lazy=lazy_loading,
+        batch_size=batch_size
+    )
+    
+    # Note: IterableDataset doesn't support shuffling in DataLoader
+    # For lazy loading, data is streamed in order; for shuffling, use eager loading
+    shuffle = not lazy_loading
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
     # === Setup model ===
     model = CEMTM(

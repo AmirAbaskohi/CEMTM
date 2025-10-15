@@ -36,7 +36,16 @@ def evaluate_topics(config):
     model.eval()
 
     # === Load data ===
-    dataset = get_dataset(config["data"]["name"], config["data"]["dataset_path"])
+    # For evaluation, we can use lazy loading to save memory
+    lazy_loading = config["data"].get("lazy_loading", False)  # Default to False for evaluation
+    batch_size = config["training"].get("batch_size", 4)
+    
+    dataset = get_dataset(
+        config["data"]["name"], 
+        config["data"]["dataset_path"],
+        lazy=lazy_loading,
+        batch_size=batch_size
+    )
     vocab = set(config["vocab"]) if "vocab" in config else None
     tokenized_corpus = []
 

@@ -29,10 +29,18 @@ def clean_text(text: str) -> str:
 
 
 # === Vocabulary Construction ===
-def build_vocab(corpus: List[str], max_vocab_size: int = 30000) -> List[str]:
+def build_vocab(corpus: List[str], max_vocab_size: int = 30000, min_freq: int = 5) -> List[str]:
     """
     Build vocabulary from a list of cleaned text strings.
-    Returns most frequent tokens (excluding stopwords).
+    Returns most frequent tokens (excluding stopwords and rare words).
+    
+    Args:
+        corpus: List of cleaned text strings
+        max_vocab_size: Maximum vocabulary size
+        min_freq: Minimum frequency threshold (default: 5)
+    
+    Returns:
+        List of vocabulary words
     """
     from collections import Counter
 
@@ -41,7 +49,11 @@ def build_vocab(corpus: List[str], max_vocab_size: int = 30000) -> List[str]:
         tokens = doc.split()
         token_counter.update(tokens)
 
-    vocab = [word for word, _ in token_counter.most_common(max_vocab_size)]
+    # Filter by minimum frequency and take most common
+    vocab = [word for word, count in token_counter.most_common() 
+             if count >= min_freq][:max_vocab_size]
+    
+    print(f"Built vocabulary: {len(vocab)} words (min_freq={min_freq}, max_size={max_vocab_size})")
     return vocab
 
 

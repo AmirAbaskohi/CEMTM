@@ -206,6 +206,39 @@ Evaluate trained model on topic quality metrics:
 python scripts/evaluate_topics.py --config config/config.yaml
 ```
 
+### Vocabulary Quality Check
+
+After training, you can verify the quality of the generated vocabulary using the vocabulary checker tool:
+
+```bash
+python scripts/check_vocabulary.py --vocab_path outputs/vocabulary.json
+```
+
+This tool provides:
+- **Vocabulary Statistics**: Total size, word length distribution
+- **Quality Checks**: Detects duplicates, suspicious short words, numeric tokens
+- **Sample Words**: Shows most and least frequent words
+- **Recommendations**: Suggests improvements based on vocabulary characteristics
+
+**When to Use:**
+- After training to verify vocabulary was built correctly
+- If you're getting low NPMI scores (may indicate vocabulary issues)
+- When tuning `vocab_size` or `min_word_freq` parameters
+- To ensure text preprocessing is working properly
+
+**Configuration Parameters:**
+You can adjust vocabulary generation in `config/config.yaml`:
+```yaml
+data:
+  vocab_size: 2000         # Maximum vocabulary size
+  min_word_freq: 5         # Minimum frequency threshold (filters rare words)
+```
+
+**Tips:**
+- **Low NPMI scores?** Increase `min_word_freq` to filter more rare words (e.g., 10-20)
+- **Too small vocabulary?** Decrease `min_word_freq` or increase `vocab_size`
+- **Too many noisy words?** Improve text preprocessing or increase `min_word_freq`
+
 ## Evaluation Metrics
 
 CEMTM provides comprehensive evaluation through multiple metrics:

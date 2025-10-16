@@ -1,9 +1,11 @@
 import os
 import torch
+import json
 from torch.utils.data import DataLoader
 from losses.losses import ReconstructionLoss, EntropyLoss, KLDivergenceLoss
 from trainer.utils import set_seed, build_optimizer, build_scheduler, save_checkpoint
 from data.dataset import get_dataset
+from data.preprocessing import clean_text, build_vocab
 from model.cemtm import CEMTM
 from tqdm import tqdm
 
@@ -22,6 +24,49 @@ def train_cemtm(config):
         lazy=lazy_loading,
         batch_size=batch_size
     )
+    
+    # === Build vocabulary from corpus ===
+    print("Building vocabulary from corpus...")
+    vocab_path = os.path.join(config["output"]["save_dir"], "vocabulary.json")
+    
+    if os.path.exists(vocab_path):
+        print(f"Loading existing vocabulary from {vocab_path}")
+        with open(vocab_path, "r") as f:
+            vocab = json.load(f)
+    else:
+        # Collect all text data for vocabulary building
+        print("Collecting corpus for vocabulary building...")
+        corpus = []
+        if lazy_loading:
+            # Need to iterate once to build vocab
+            temp_dataset = get_dataset(
+                config["data"]["name"],
+                config["data"]["dataset_path"],
+                lazy=True,
+                batch_size=batch_size
+            )
+            for sample in tqdm(temp_dataset, desc="Collecting texts"):
+                cleaned = clean_text(sample["text"])
+                corpus.append(cleaned)
+        else:
+            for sample in tqdm(dataset, desc="Collecting texts"):
+                cleaned = clean_text(sample["text"])
+                corpus.append(cleaned)
+        
+        # Build vocabulary
+        vocab = build_vocab(
+            corpus, 
+            max_vocab_size=config["data"].get("vocab_size", 30000),
+            min_freq=config["data"].get("min_word_freq", 5)
+        )
+        
+        # Save vocabulary
+        os.makedirs(config["output"]["save_dir"], exist_ok=True)
+        with open(vocab_path, "w") as f:
+            json.dump(vocab, f)
+        print(f"Vocabulary saved to {vocab_path}")
+    
+    vocab_set = set(vocab)  # Convert to set for faster lookup
     
     # Note: IterableDataset doesn't support shuffling in DataLoader
     # For lazy loading, data is streamed in order; for shuffling, use eager loading

@@ -38,7 +38,8 @@ data:
   dataset_path: ./data/corpus/
   max_text_length: 512
   image_size: 224
-  vocab_size: 30000
+  vocab_size: 2000             # Maximum vocabulary size
+  min_word_freq: 5              # Minimum word frequency to include in vocabulary (filters rare words)
   embedding_path: ./data/embeddings/glove.6B.300d.txt  # For WE metric evaluation
   lazy_loading: true            # If true, use lazy loading to avoid memory overflow with large datasets
 

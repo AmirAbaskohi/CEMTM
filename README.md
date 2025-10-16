@@ -18,7 +18,7 @@ We introduce CEMTM, a context-enhanced multimodal topic model designed to infer 
 
 CEMTM (Contextual Embedding-based Topic Model) addresses the limitations of traditional topic models by incorporating multimodal information through contextualized embeddings. This approach:
 
-- **Leverages VLMs**: Uses pretrained Vision-Language Models (CLIP-based) to extract rich contextual embeddings from text-image pairs
+- **Leverages VLMs**: Uses pretrained Vision-Language Models to extract rich contextual embeddings from text-image pairs
 - **Token-level Analysis**: Learns importance weights for individual tokens to identify the most relevant content for topic discovery
 - **Multimodal Integration**: Seamlessly combines textual and visual information in a unified embedding space
 - **Contextual Understanding**: Captures semantic relationships that traditional bag-of-words approaches miss
@@ -37,7 +37,7 @@ CEMTM consists of four key components working together to extract topics from mu
 
 ### 1. **VLM2Vec Module**
 - **Purpose**: Extracts contextualized embeddings from text-image pairs
-- **Implementation**: Wrapper around CLIP-based Vision-Language Models
+- **Implementation**: Wrapper around Vision-Language Models
 - **Output**: 
   - Contextual token embeddings: `H ∈ ℝ^(N×D)` where N is sequence length, D is embedding dimension
   - Document-level embedding: `e_d ∈ ℝ^D`

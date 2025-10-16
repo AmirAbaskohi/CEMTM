@@ -2,7 +2,7 @@
 
 # === Model Configuration ===
 model:
-  d_model: 4096               # Dimension of token embeddings from VLM2Vec
+  d_model: 4096               # Dimension of token embeddings from VLM2Vec (4096 for LLaVA/VLM2Vec, 768 for CLIP)
   n_topics: 50                # Number of topics
   transformer_layers: 2       # Layers in the importance network transformer
   transformer_heads: 8        # Attention heads in transformer
@@ -44,7 +44,12 @@ data:
 
 # === Pretrained Models ===
 vlm2vec:
-  model_name: "llava-next-7b"
+  model_name: "TIGER-Lab/VLM2Vec-LLaVa-Next"  # Default: VLM2Vec-LLaVA (4096-dim)
+  # Options:
+  # - "TIGER-Lab/VLM2Vec-LLaVa-Next" → 4096 dimensions (recommended)
+  # - "llava-hf/llava-1.5-7b-hf" → 4096 dimensions  
+  # - "llava-hf/llava-v1.6-mistral-7b-hf" → 4096 dimensions
+  # - "openai/clip-vit-large-patch14" → 768 dimensions (set d_model: 768)
   pretrained_path: ./checkpoints/vlm2vec_llava_next.pth
   freeze: false
 

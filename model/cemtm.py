@@ -18,6 +18,15 @@ class CEMTM(nn.Module):
     ):
         super().__init__()
         self.vlm2vec = VLM2Vec(model_name=vlm_model_name, freeze=freeze_vlm)
+        
+        # Verify that input_dim matches the VLM's hidden dimension
+        actual_dim = self.vlm2vec.hidden_dim
+        if input_dim != actual_dim:
+            print(f"⚠️  WARNING: Config specifies input_dim={input_dim}, but {vlm_model_name} has hidden_dim={actual_dim}")
+            print(f"✓ Using actual dimension: {actual_dim}")
+            input_dim = actual_dim
+        
+        self.input_dim = input_dim
         self.topic_encoder = TopicEncoder(input_dim=input_dim, num_topics=num_topics)
         self.importance_net = ImportanceNetwork(
             input_dim=input_dim,

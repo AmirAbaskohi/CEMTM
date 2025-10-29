@@ -88,12 +88,21 @@ class VLM2Vec(nn.Module):
         outputs = self.model(**inputs, output_hidden_states=True)
 
         # === Extract contextual embeddings ===
-        text_embeddings = outputs.text_model_output.last_hidden_state[0]   # (seq_len, hidden_dim)
-        image_embeddings = outputs.vision_model_output.last_hidden_state.mean(dim=1)[0]  # (hidden_dim,)
-        contextual_embeddings = torch.cat([text_embeddings, image_embeddings.unsqueeze(0)], dim=0)
+        # For CLIP: text_embeddings (seq_len, hidden_dim) - 768 for CLIP-large
+        text_embeddings = outputs.text_model_output.last_hidden_state[0]   # (seq_len, 768)
+        
+        # vision_model_output.last_hidden_state: (batch_size, num_patches, hidden_dim)
+        # Average over patches to get one embedding per image, then squeeze batch dimension
+        image_embeddings_batch = outputs.vision_model_output.last_hidden_state  # (batch_size, num_patches, 768)
+        image_embeddings = image_embeddings_batch.mean(dim=1)  # (batch_size, 768)
+        image_embeddings = image_embeddings.squeeze(0)  # (768,) - remove batch dimension
+        
+        # Concatenate text embeddings with image embeddings
+        contextual_embeddings = torch.cat([text_embeddings, image_embeddings.unsqueeze(0)], dim=0)  # (seq_len+1, 768)
 
-        # === Final document embedding (last token) ===
-        doc_embedding = text_embeddings[-1]  # last token embedding
+        # === Final document embedding (AVERAGE of all tokens for CLIP) ===
+        # Unlike LLaVA which uses last token, CLIP uses average of all contextual embeddings
+        doc_embedding = contextual_embeddings.mean(dim=0)  # (768,)
 
         return contextual_embeddings, doc_embedding
     
@@ -112,7 +121,14 @@ class VLM2Vec(nn.Module):
                 ],
             },
         ]
-        prompt = self.processor.apply_chat_template(conversation, add_generation_prompt=True)
+        
+        # Apply chat template with proper error handling
+        try:
+            prompt = self.processor.apply_chat_template(conversation, add_generation_prompt=True)
+        except AttributeError:
+            # Fallback if chat_template is not set in the processor
+            print("⚠️  Chat template not found. Using default prompt format.")
+            prompt = text
         
         # Process inputs
         inputs = self.processor(
@@ -130,7 +146,7 @@ class VLM2Vec(nn.Module):
         # The hidden states from the language model backbone contain the final token embeddings
         hidden_states = outputs.hidden_states[-1][0]  # (seq_len, 4096)
         
-        # === Final document embedding (last token) ===
+        # === Final document embedding (last token for LLaVA) ===
         # This is the key: we use the final token embedding as mentioned in VLM2Vec
         doc_embedding = hidden_states[-1]  # (4096,)
         

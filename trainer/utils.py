@@ -20,9 +20,10 @@ def build_optimizer(model, config):
     Build optimizer (default: AdamW)
     """
     optim_config = config["optimizer"]
+    lr = float(optim_config["lr"])
     optimizer = torch.optim.AdamW(
         model.parameters(),
-        lr=optim_config["lr"],
+        lr=lr,
         weight_decay=optim_config.get("weight_decay", 0.01),
     )
     return optimizer

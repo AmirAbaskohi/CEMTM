@@ -4,6 +4,7 @@ import json
 from torch.utils.data import DataLoader
 from losses.losses import ReconstructionLoss, EntropyLoss, KLDivergenceLoss
 from trainer.utils import set_seed, build_optimizer, build_scheduler, save_checkpoint
+from trainer.collate import custom_collate_fn
 from data.dataset import get_dataset
 from data.preprocessing import clean_text, build_vocab
 from model.cemtm import CEMTM
@@ -71,7 +72,13 @@ def train_cemtm(config):
     # Note: IterableDataset doesn't support shuffling in DataLoader
     # For lazy loading, data is streamed in order; for shuffling, use eager loading
     shuffle = not lazy_loading
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        collate_fn=custom_collate_fn,  # Use custom collate function for PIL images
+        num_workers=0  # Keep 0 for multimodal data; increase cautiously
+    )
 
     # === Setup model ===
     model = CEMTM(
@@ -98,36 +105,51 @@ def train_cemtm(config):
     for epoch in range(config["training"]["num_epochs"]):
         pbar = tqdm(dataloader, desc=f"Epoch {epoch+1}")
         for batch in pbar:
-            text = batch["text"]
-            images = batch["images"]
+            texts = batch["text"]  # List of strings
+            images_list = batch["images"]  # List of image lists
+            
+            # Process batch (support variable batch sizes)
+            batch_loss = 0.0
+            batch_l_rec = 0.0
+            batch_l_ent = 0.0
+            batch_l_kl = 0.0
+            
+            for text, images in zip(texts, images_list):
+                optimizer.zero_grad()
 
-            optimizer.zero_grad()
+                # Forward pass
+                output = model(text, images)
 
-            # Forward pass
-            output = model(text[0], images[0])  # batch size = 1 for now
+                # Losses
+                L_rec = recon_loss_fn(output["e_d_prime"], output["e_d"])
+                L_ent = entropy_loss_fn(output["beta"])
+                L_kl = kl_loss_fn(output["mu"], output["logvar"])
 
-            # Losses
-            L_rec = recon_loss_fn(output["e_d_prime"], output["e_d"])
-            L_ent = entropy_loss_fn(output["beta"])
-            L_kl = kl_loss_fn(output["mu"], output["logvar"])
+                # Combined loss
+                loss = (
+                    L_rec
+                    + config["loss"]["lambda_entropy"] * L_ent
+                    + config["loss"]["lambda_kl"] * L_kl
+                )
 
-            # Combined loss
-            loss = (
-                L_rec
-                + config["loss"]["lambda_entropy"] * L_ent
-                + config["loss"]["lambda_kl"] * L_kl
-            )
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), config["training"]["gradient_clip"])
+                optimizer.step()
+                scheduler.step()
 
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), config["training"]["gradient_clip"])
-            optimizer.step()
-            scheduler.step()
-
+                # Accumulate for logging
+                batch_loss += loss.item()
+                batch_l_rec += L_rec.item()
+                batch_l_ent += L_ent.item()
+                batch_l_kl += L_kl.item()
+            
+            # Average over batch samples
+            num_samples = len(texts)
             pbar.set_postfix({
-                "L_rec": L_rec.item(),
-                "L_ent": L_ent.item(),
-                "L_kl": L_kl.item(),
-                "Loss": loss.item()
+                "L_rec": batch_l_rec / num_samples,
+                "L_ent": batch_l_ent / num_samples,
+                "L_kl": batch_l_kl / num_samples,
+                "Loss": batch_loss / num_samples
             })
 
         # Save model

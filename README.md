@@ -364,12 +364,26 @@ Ce projet a été financé par le Conseil de recherches en sciences naturelles e
 
 ## Citation
 ```
-@inproceedings{
-  abaskohi2025cemtm,
-  title={{CEMTM}: Contextual Embedding-based Multimodal Topic Modeling},
-  author={Amirhossein Abaskohi and Raymond Li and Chuyuan Li and Shafiq Joty and Giuseppe Carenini},
-  booktitle={The 2025 Conference on Empirical Methods in Natural Language Processing},
-  year={2025},
-  url={https://openreview.net/forum?id=VRH4rYFe0v}
+@inproceedings{abaskohi-etal-2025-cemtm,
+    title = "{CEMTM}: Contextual Embedding-based Multimodal Topic Modeling",
+    author = "Abaskohi, Amirhossein  and
+      Li, Raymond  and
+      Li, Chuyuan  and
+      Joty, Shafiq  and
+      Carenini, Giuseppe",
+    editor = "Christodoulopoulos, Christos  and
+      Chakraborty, Tanmoy  and
+      Rose, Carolyn  and
+      Peng, Violet",
+    booktitle = "Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing",
+    month = nov,
+    year = "2025",
+    address = "Suzhou, China",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.emnlp-main.590/",
+    doi = "10.18653/v1/2025.emnlp-main.590",
+    pages = "11675--11692",
+    ISBN = "979-8-89176-332-6",
+    abstract = "We introduce CEMTM, a context-enhanced multimodal topic model designed to infer coherent and interpretable topic structures from both short and long documents containing text and images. CEMTM builds on fine-tuned large vision language models (LVLMs) to obtain contextualized embeddings, and employs a distributional attention mechanism to weight token-level contributions to topic inference. A reconstruction objective aligns topic-based representations with the document embedding, encouraging semantic consistency across modalities. Unlike existing approaches, CEMTM can process multiple images per document without repeated encoding and maintains interpretability through explicit word-topic and document-topic distributions. Extensive experiments on six multimodal benchmarks show that CEMTM consistently outperforms unimodal and multimodal baselines, achieving a remarkable average LLM score of 2.61. Further analysis shows its effectiveness in downstream few-shot retrieval and its ability to capture visually grounded semantics in complex domains such as scientific articles."
 }
 ```
